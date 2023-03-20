@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  broker:
+    image: rabbitmq:3-management-alpine
+    hostname: rabbit1
+    environment: &env
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "password"
+      RABBITMQ_DEFAULT_VHOST: "/"
+      CELERY_BROKER_URL: "amqp://user:password@broker:5672"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "5672"
+
+  worker:
+    restart: always
+    build:
+      context: ./InpainterModelZoo
+    command: [ 'celery',  '-A', 'tasks', 'worker', '--loglevel=INFO', ]
+
+  # webapplication:
+  #   image: webapplication
+  #   restart: always
+  #   build:
+  #     context: ./InpainterWebapp
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #   ports:
+  #     - "80"
